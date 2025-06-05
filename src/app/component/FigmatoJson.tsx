@@ -17,27 +17,37 @@ export default function FigmanToNoCode() {
     const [converted, setConverted] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    function extractFigmaIds(url: string): { fileId: string; nodeId: string | null } {
+        const fileIdMatch = url.match(/\/design\/([a-zA-Z0-9]+)/);
+        const nodeIdMatch = url.match(/node-id=([\d-]+)/);
+
+        const fileId = fileIdMatch ? fileIdMatch[1] : "";
+        const nodeId = nodeIdMatch ? nodeIdMatch[1] : null;
+
+        return { fileId, nodeId };
+    }
+
     const onFetchFigmaFile = async () => {
-        const fileId = "4r7C2sI9cktH4T8atJhmrW";
-        const nodeId = "407-7014";
         setLoading(true);
         try {
-            const fetchedData = await FigmaNodes({ fileId, nodeId });
+            const fetchedData = await FigmaNodes(extractFigmaIds(figmaUrl));
             console.log(figmaUrl);
             if (fetchedData) setFigmaJSON(fetchedData);
         } catch (error) {
             console.log("Failed to fetch figma file", error);
         } finally {
             setLoading(false);
+            setConverted(false)
         }
     };
 
-    const onConvertToNocodeJSON = () => {
+    const onConvertToNocodeJSON = async () => {
         if (isIconButtonNode(figmaJSON)) {
             const matchedData = extractIconButtonData(figmaJSON, matchedIconButtonChild);
             if (matchedData) {
                 console.log("this is matched data", matchedData);
                 const finalJSON = getBaseTemplate(matchedData);
+                setConverted(true)
                 console.log("this is final json", finalJSON);
                 if (finalJSON) {
                     setNocodeJSON(finalJSON[0]);
@@ -57,6 +67,13 @@ export default function FigmanToNoCode() {
         setTimeout(() => setCopied(false), 900);
     };
 
+
+
+
+    //https://www.figma.com/design/4r7C2sI9cktH4T8atJhmrW/Component-Sheet?node-id=1-5756&t=3Dr01wZubuH5Kmxv-4
+
+    //https://www.figma.com/design/4r7C2sI9cktH4T8atJhmrW/Component-Sheet?node-id=1-2&t=E2zpwyr9bkPtqB9t-0
+
     return (
         <div className="flex flex-row gap-4 p-4 w-screen h-screen">
             <div className="flex flex-1 flex-col gap-y-2 w-[45%]">
@@ -66,7 +83,7 @@ export default function FigmanToNoCode() {
                         value={figmaUrl}
                         onChange={(e) => {
                             setFigmaUrl(e.target.value);
-                            setConverted(false);
+                            // setConverted(false);
                         }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
@@ -119,15 +136,20 @@ export default function FigmanToNoCode() {
             </div>
 
             <div className="flex-1 flex flex-col gap-y-2 w-[45%]">
-                {nocodeJSON && (
+                {converted && nocodeJSON && (
                     <>
-                        <div className="flex-1 relative overflow-y-auto border-2 border-blue-300 rounded-md p-2">
-                            <div className="flex-1 overflow-y-auto rounded-md p-2 bg-white text-sm">
+                        <div
+                            className="flex-1 relative border-2 border-blue-300 rounded-md p-2"
+                            style={{ maxHeight: "calc(100vh - 80px)" }}
+                        >
+                            <div className="h-full overflow-y-auto rounded-md p-2 bg-white text-sm z-0 relative">
                                 <JSONPretty data={nocodeJSON} />
                             </div>
                             {copied && (
-                                <div className="absolute inset-0 opacity-25 bg-blue-200 flex items-center justify-center z-10 rounded-md transition duration-300">
-                                    <span className="text-blue-800 text-8xl font-semibold">Copied!</span>
+                                <div className="absolute inset-0 bg-blue-200 opacity-25 flex items-center justify-center z-10 rounded-md pointer-events-none">
+                                    <span className="text-blue-800 text-8xl font-semibold">
+                                        Copied!
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -139,6 +161,7 @@ export default function FigmanToNoCode() {
                         </button>
                     </>
                 )}
+
             </div>
         </div>
     );
