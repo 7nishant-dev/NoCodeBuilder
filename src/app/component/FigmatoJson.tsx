@@ -5,11 +5,13 @@ import { extractIconButtonData } from "./extractors/extractIconButton";
 import { isIconButtonNode, matchedIconButtonChild } from "./isIconButtonNode";
 import JSONPretty from 'react-json-pretty';
 import { getBaseTemplate } from "./jsonMapping";
+import type { FileNodesResponse } from "./types/figmatypes";
+
 
 
 export default function FigmanToNoCode() {
     const [figmaUrl, setFigmaUrl] = useState("");
-    const [figmaJSON, setFigmaJSON] = useState<any>(null);
+    const [figmaJSON, setFigmaJSON] = useState<FileNodesResponse>(null);
     const [nocodeJSON, setNocodeJSON] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [converted, setConverted] = useState(false);
@@ -37,7 +39,9 @@ export default function FigmanToNoCode() {
                 console.log("this is matched data", matchedData);
                 const finalJSON = getBaseTemplate(matchedData);
                 console.log("this is final json", finalJSON);
-                finalJSON && setNocodeJSON(finalJSON[0]);
+                if (finalJSON) {
+                    setNocodeJSON(finalJSON[0]);
+                }
             }
             else {
                 console.log("error fetchin data");

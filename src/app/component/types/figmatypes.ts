@@ -5409,6 +5409,7 @@ export type FileNodesResponse = {
        */
       componentSets: { [key: string]: ComponentSet };
 
+      
       /**
        * The version of the file schema that this file uses.
        */

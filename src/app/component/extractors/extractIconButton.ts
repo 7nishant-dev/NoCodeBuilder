@@ -1,4 +1,6 @@
+// import type { FileNodesResponse } from '../types/figmatypes';
 const DEFAULT_SIZE = "md";
+
 
 export function extractIconButtonData(figmaResponse: any, iconButtonBlock: any) {
   const nodes = figmaResponse?.nodes;
