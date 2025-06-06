@@ -76,7 +76,7 @@ export default function FigmanToNoCode() {
     const onCopyToClipboard = () => {
         navigator.clipboard.writeText(JSON.stringify(nocodeJSON));
         setCopied(true);
-        setTimeout(() => setCopied(false), 900);
+        setTimeout(() => setCopied(false), 800);
     };
 
 
